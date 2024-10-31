@@ -18,10 +18,7 @@ const ALIAS: &str = "put-txn";
 impl ClientCommand for PutTransaction {
     const NAME: &'static str = "put-transaction";
 
-    const ABOUT: &'static str =
-        "Create a transaction and output it to a file or stdout. As a file, the transaction can subsequently \
-        be signed by other parties using the 'sign-transaction' subcommand and then sent to the network \
-        for execution using the 'send-transaction' subcommand";
+    const ABOUT: &'static str = "Create a transaction and and send it to the network for execution";
 
     fn build(display_order: usize) -> Command {
         Command::new(Self::NAME)
