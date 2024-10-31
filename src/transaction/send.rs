@@ -15,7 +15,7 @@ const ALIAS: &str = "send-txn";
 impl ClientCommand for SendTransaction {
     const NAME: &'static str = "send-transaction";
     const ABOUT: &'static str =
-        "Read a previously-saved deploy from a file and send it to the network for execution";
+        "Read a previously-saved transaction from a file and send it to the network for execution";
 
     fn build(display_order: usize) -> Command {
         Command::new(Self::NAME)
