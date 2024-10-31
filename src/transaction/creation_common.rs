@@ -741,7 +741,7 @@ pub(super) mod is_install_upgrade {
     }
 
     pub fn get(matches: &ArgMatches) -> bool {
-        matches.args_present()
+        matches.get_flag(ARG_NAME)
     }
 }
 
@@ -1963,4 +1963,37 @@ pub(super) fn parse_rpc_args_and_run(
         rpc_id,
         verbosity_level,
     ))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::is_install_upgrade;
+    use clap::Command;
+
+    // Helper function to build a command with `is_install_upgrade` argument
+    fn build_app() -> Command {
+        Command::new("put-transaction session").arg(is_install_upgrade::arg(1))
+    }
+
+    #[test]
+    fn test_is_install_upgrade_flag_present() {
+        // Simulate running with the `--install-upgrade` flag
+        let matches = build_app()
+            .try_get_matches_from(vec!["put-transaction session", "--install-upgrade"])
+            .unwrap();
+
+        // Assert that `get` returns true when the flag is present
+        assert!(is_install_upgrade::get(&matches));
+    }
+
+    #[test]
+    fn test_is_install_upgrade_flag_absent() {
+        // Simulate running without the `--install-upgrade` flag
+        let matches = build_app()
+            .try_get_matches_from(vec!["put-transaction session"])
+            .unwrap();
+
+        // Assert that `get` returns false when the flag is absent
+        assert!(!is_install_upgrade::get(&matches));
+    }
 }
