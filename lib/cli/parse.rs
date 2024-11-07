@@ -1871,7 +1871,7 @@ mod tests {
             .unwrap();
             assert_eq!(
                 parsed,
-                PricingMode::Reserved {
+                PricingMode::Prepaid {
                     receipt: Digest::from_hex(VALID_HASH).unwrap(),
                 }
             );
