@@ -1,7 +1,6 @@
 use casper_types::{
     account::{Account, AccountHash},
-    addressable_entity::NamedKeys,
-    AddressableEntity as CasperTypesAddressableEntity, EntityAddr, EntryPointValue,
+    AddressableEntity as CasperTypesAddressableEntity, EntityAddr, EntryPointValue, NamedKeys,
     ProtocolVersion, PublicKey,
 };
 use serde::{Deserialize, Serialize};

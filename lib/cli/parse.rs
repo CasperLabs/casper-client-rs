@@ -970,7 +970,7 @@ pub(super) fn pricing_mode(
                     error: "Receipt is required for reserved pricing mode".to_string(),
                 });
             }
-            Ok(PricingMode::Reserved {
+            Ok(PricingMode::Prepaid {
                 receipt: maybe_receipt.unwrap_or_default(),
             })
         }
