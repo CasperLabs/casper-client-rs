@@ -1075,10 +1075,9 @@ pub(super) mod package_addr {
     pub fn arg() -> Arg {
         Arg::new(ARG_NAME)
             .long(ARG_NAME)
-            .required(true)
             .value_name(ARG_VALUE_NAME)
             .help(ARG_HELP)
-            .display_order(DisplayOrder::PackageAddr as usize)
+            .display_order(DisplayOrder::ContractPackageHash as usize)
     }
 
     pub fn get(matches: &ArgMatches) -> Option<&str> {
