@@ -9,11 +9,20 @@ use crate::{command::ClientCommand, common, Success};
 
 pub struct SendDeploy;
 
+static DEPRECATION_WARNING: &str = r#"
+#################################### WARNING ####################################
+#                                                                               #
+#       send-deploy subcommand is deprecated in favor of send-transaction       #
+#                    and will be removed in a future release                    #
+#                                                                               #
+#################################################################################
+"#;
+
 #[async_trait]
 impl ClientCommand for SendDeploy {
     const NAME: &'static str = "send-deploy";
     const ABOUT: &'static str =
-        "Read a previously-saved deploy from a file and send it to the network for execution";
+        "[DEPRECATED: use `send-transaction` instead] Read a previously-saved deploy from a file and send it to the network for execution";
 
     fn build(display_order: usize) -> Command {
         Command::new(Self::NAME)
@@ -29,6 +38,9 @@ impl ClientCommand for SendDeploy {
     }
 
     async fn run(matches: &ArgMatches) -> Result<Success, CliError> {
+        // show deprecation warning for each use of `send-deploy` subcommand
+        println!("{DEPRECATION_WARNING}");
+
         let is_speculative_exec = creation_common::speculative_exec::get(matches);
         let maybe_rpc_id = common::rpc_id::get(matches);
         let node_address = common::node_address::get(matches);

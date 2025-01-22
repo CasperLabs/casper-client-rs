@@ -8,11 +8,20 @@ use crate::{command::ClientCommand, common, Success};
 
 pub struct SignDeploy;
 
+static DEPRECATION_WARNING: &str = r#"
+#################################### WARNING ####################################
+#                                                                               #
+#       sign-deploy subcommand is deprecated in favor of sign-transaction       #
+#                    and will be removed in a future release                    #
+#                                                                               #
+#################################################################################
+"#;
+
 #[async_trait]
 impl ClientCommand for SignDeploy {
     const NAME: &'static str = "sign-deploy";
     const ABOUT: &'static str =
-        "Read a previously-saved deploy from a file, cryptographically sign it, and output it to a \
+        "[DEPRECATED: use `sign-transaction` instead] Read a previously-saved deploy from a file, cryptographically sign it, and output it to a \
         file or stdout";
 
     fn build(display_order: usize) -> Command {
@@ -32,6 +41,9 @@ impl ClientCommand for SignDeploy {
     }
 
     async fn run(matches: &ArgMatches) -> Result<Success, CliError> {
+        // show deprecation warning for each use of `sign-deploy` subcommand
+        println!("{DEPRECATION_WARNING}");
+
         let input_path = creation_common::input::get(matches);
         let secret_key = common::secret_key::get(matches).unwrap_or_default();
         let maybe_output_path = creation_common::output::get(matches).unwrap_or_default();
