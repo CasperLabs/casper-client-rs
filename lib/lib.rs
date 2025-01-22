@@ -134,6 +134,7 @@ pub const MAX_SERIALIZED_SIZE_OF_DEPLOY: u32 = 1_024 * 1_024;
 /// Sends a JSON-RPC `account_put_deploy` request to the specified node.
 ///
 /// For details of the parameters, see [the module docs](crate#common-parameters).
+#[deprecated(since = "3.0.0", note = "use `put_transaction` instead")]
 pub async fn put_deploy(
     rpc_id: JsonRpcId,
     node_address: &str,

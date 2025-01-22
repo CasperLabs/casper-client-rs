@@ -8,10 +8,20 @@ use crate::{command::ClientCommand, common, Success};
 
 pub struct PutDeploy;
 
+static DEPRECATION_WARNING: &str = r#"
+#################################### WARNING ####################################
+#                                                                               #
+#        put-deploy subcommand is deprecated in favor of put-transaction        #
+#                    and will be removed in a future release                    #
+#                                                                               #
+#################################################################################
+"#;
+
 #[async_trait]
 impl ClientCommand for PutDeploy {
     const NAME: &'static str = "put-deploy";
-    const ABOUT: &'static str = "Create a deploy and send it to the network for execution";
+    const ABOUT: &'static str =
+        "[DEPRECATED: use `put-transaction` instead] Create a deploy and send it to the network for execution";
 
     fn build(display_order: usize) -> Command {
         let subcommand = Command::new(Self::NAME)
@@ -27,6 +37,9 @@ impl ClientCommand for PutDeploy {
     }
 
     async fn run(matches: &ArgMatches) -> Result<Success, CliError> {
+        // show deprecation warning for each use of `put-deploy` subcommand
+        println!("{DEPRECATION_WARNING}");
+
         creation_common::show_simple_arg_examples_and_exit_if_required(matches);
         creation_common::show_json_args_examples_and_exit_if_required(matches);
 
