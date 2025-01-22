@@ -1021,10 +1021,10 @@ pub(super) mod entity_addr {
 }
 
 pub(super) mod contract_hash {
-    use casper_types::{EntityAddr, Key};
     use super::*;
     use casper_client::cli::CliError;
     use casper_client::Error;
+    use casper_types::{EntityAddr, Key};
 
     pub const ARG_NAME: &str = "contract-hash";
     const ARG_VALUE_NAME: &str = "FORMATTED STRING";
@@ -1039,9 +1039,7 @@ pub(super) mod contract_hash {
     }
 
     pub fn get(matches: &ArgMatches) -> Option<&str> {
-        matches
-            .get_one::<String>(ARG_NAME)
-            .map(String::as_str)
+        matches.get_one::<String>(ARG_NAME).map(String::as_str)
     }
 
     pub(super) fn parse_contract_hash(value: &str) -> Result<EntityAddr, CliError> {
@@ -1059,9 +1057,6 @@ pub(super) mod contract_hash {
         }
     }
 }
-
-
-
 
 pub(super) mod package_addr {
     use super::*;
@@ -1112,7 +1107,8 @@ pub(super) mod contract_package_hash {
 
     pub const ARG_NAME: &str = "contract-package-hash";
     const ARG_VALUE_NAME: &str = "FORMATTED STRING";
-    const ARG_HELP: &str = "The formatted string prefixed by hash- representing a 1.x contract package";
+    const ARG_HELP: &str =
+        "The formatted string prefixed by hash- representing a 1.x contract package";
 
     pub fn arg() -> Arg {
         Arg::new(ARG_NAME)
@@ -2070,9 +2066,7 @@ pub(super) mod invocable_entity {
                 let entity_addr_str = entity_addr::get(matches)?;
                 entity_addr::parse_entity_addr(entity_addr_str)?
             }
-            Some(contract_hash_as_str) => {
-                contract_hash::parse_contract_hash(contract_hash_as_str)?
-            }
+            Some(contract_hash_as_str) => contract_hash::parse_contract_hash(contract_hash_as_str)?,
         };
 
         let entry_point = session_entry_point::get(matches).unwrap_or_default();
