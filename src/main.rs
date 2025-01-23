@@ -58,7 +58,9 @@ use keygen::Keygen;
 use list_rpcs::ListRpcs;
 use query_balance::QueryBalance;
 use query_global_state::QueryGlobalState;
-use transaction::{MakeTransaction, PutTransaction, SendTransaction, SignTransaction};
+use transaction::{
+    ListTransactions, MakeTransaction, PutTransaction, SendTransaction, SignTransaction,
+};
 use verify_contract::VerifyContract;
 
 const APP_NAME: &str = "Casper client";
@@ -95,6 +97,7 @@ enum DisplayOrder {
     GetBlock,
     GetBlockTransfers,
     ListDeploys,
+    ListTransactions,
     GetStateRootHash,
     GetEraSummary,
     GetEraInfo,
@@ -145,6 +148,9 @@ fn cli() -> Command {
             DisplayOrder::GetBlockTransfers as usize,
         ))
         .subcommand(ListDeploys::build(DisplayOrder::ListDeploys as usize))
+        .subcommand(ListTransactions::build(
+            DisplayOrder::ListTransactions as usize,
+        ))
         .subcommand(GetStateRootHash::build(
             DisplayOrder::GetStateRootHash as usize,
         ))
@@ -205,6 +211,7 @@ async fn main() {
         GetBlock::NAME => GetBlock::run(matches).await,
         GetBlockTransfers::NAME => GetBlockTransfers::run(matches).await,
         ListDeploys::NAME => ListDeploys::run(matches).await,
+        ListTransactions::NAME => ListTransactions::run(matches).await,
         GetStateRootHash::NAME => GetStateRootHash::run(matches).await,
         GetEraSummary::NAME => GetEraSummary::run(matches).await,
         GetEraInfo::NAME => GetEraInfo::run(matches).await,
