@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use crate::{Error, JsonRpcId, SuccessResponse, Verbosity};
 use jsonrpc_lite::{JsonRpc, Params};
 use once_cell::sync::OnceCell;
@@ -6,6 +8,8 @@ use serde::{de::DeserializeOwned, Serialize};
 use serde_json::json;
 
 const RPC_API_PATH: &str = "rpc";
+const REQUEST_TIMEOUT: Duration = Duration::from_secs(5);
+
 /// Statically declared client used when making HTTP requests
 /// so opened connections are pooled.
 static CLIENT: OnceCell<Client> = OnceCell::new();
@@ -62,7 +66,12 @@ impl Call {
         #[cfg(feature = "std-fs-io")]
         crate::json_pretty_print(&rpc_request, self.verbosity)?;
 
-        let client = CLIENT.get_or_init(Client::new);
+        let client = CLIENT.get_or_init(|| {
+            Client::builder()
+                .timeout(REQUEST_TIMEOUT)
+                .build()
+                .expect("failed to initialize HTTP client")
+        });
         let http_response = client
             .post(self.node_address)
             .json(&rpc_request)
