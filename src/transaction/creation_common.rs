@@ -49,6 +49,7 @@ pub(super) enum DisplayOrder {
     NewPublicKey,
     PackageAlias,
     PackageAddr,
+    ContractPackageHash,
     EntityAlias,
     PaymentAmount,
     PricingMode,
@@ -62,6 +63,7 @@ pub(super) enum DisplayOrder {
     NewValidator,
     Delegator,
     EntityAddr,
+    ContractHash,
     RpcId,
     Verbose,
 }
@@ -983,13 +985,12 @@ pub(super) mod entity_addr {
     use casper_types::{EntityAddr, Key};
 
     pub const ARG_NAME: &str = "entity-address";
-    const ARG_VALUE_NAME: &str = "FORMATTED STRING or PATH";
+    const ARG_VALUE_NAME: &str = "FORMATTED STRING";
     const ARG_HELP: &str = "The formatted string representing an addressable entity address.";
 
     pub fn arg() -> Arg {
         Arg::new(ARG_NAME)
             .long(ARG_NAME)
-            .required(true)
             .value_name(ARG_VALUE_NAME)
             .help(ARG_HELP)
             .display_order(DisplayOrder::EntityAddr as usize)
@@ -1012,7 +1013,45 @@ pub(super) mod entity_addr {
         match entity_addr {
             Key::AddressableEntity(entity_addr) => Ok(entity_addr),
             _ => Err(CliError::from(Error::InvalidKeyVariant {
-                expected_variant: "AddressibleEntity".to_string(),
+                expected_variant: "AddressableEntity".to_string(),
+                actual: entity_addr,
+            })),
+        }
+    }
+}
+
+pub(super) mod contract_hash {
+    use super::*;
+    use casper_client::cli::CliError;
+    use casper_client::Error;
+    use casper_types::{EntityAddr, Key};
+
+    pub const ARG_NAME: &str = "contract-hash";
+    const ARG_VALUE_NAME: &str = "FORMATTED STRING";
+    const ARG_HELP: &str = "The formatted string prefixed by hash- representing a 1.x contract.";
+
+    pub fn arg() -> Arg {
+        Arg::new(ARG_NAME)
+            .long(ARG_NAME)
+            .value_name(ARG_VALUE_NAME)
+            .help(ARG_HELP)
+            .display_order(DisplayOrder::ContractHash as usize)
+    }
+
+    pub fn get(matches: &ArgMatches) -> Option<&str> {
+        matches.get_one::<String>(ARG_NAME).map(String::as_str)
+    }
+
+    pub(super) fn parse_contract_hash(value: &str) -> Result<EntityAddr, CliError> {
+        let entity_addr =
+            Key::from_formatted_str(value).map_err(|error| CliError::FailedToParseKey {
+                context: "contract hash",
+                error,
+            })?;
+        match entity_addr {
+            Key::Hash(hash_addr) => Ok(EntityAddr::SmartContract(hash_addr)),
+            _ => Err(CliError::from(Error::InvalidKeyVariant {
+                expected_variant: "Key::Hash".to_string(),
                 actual: entity_addr,
             })),
         }
@@ -1026,15 +1065,14 @@ pub(super) mod package_addr {
 
     pub const ARG_NAME: &str = "package-address";
     const ARG_VALUE_NAME: &str = "FORMATTED STRING or PATH";
-    const ARG_HELP: &str = "The formatted string representing an addressable entity address.";
+    const ARG_HELP: &str = "The formatted string representing an package address.";
 
     pub fn arg() -> Arg {
         Arg::new(ARG_NAME)
             .long(ARG_NAME)
-            .required(true)
             .value_name(ARG_VALUE_NAME)
             .help(ARG_HELP)
-            .display_order(DisplayOrder::PackageAddr as usize)
+            .display_order(DisplayOrder::ContractPackageHash as usize)
     }
 
     pub fn get(matches: &ArgMatches) -> Option<&str> {
@@ -1058,6 +1096,44 @@ pub(super) mod package_addr {
                     })),
                 }
             }
+        }
+    }
+}
+
+pub(super) mod contract_package_hash {
+    use super::*;
+    use casper_client::{cli::CliError, Error};
+    use casper_types::{Key, PackageAddr};
+
+    pub const ARG_NAME: &str = "contract-package-hash";
+    const ARG_VALUE_NAME: &str = "FORMATTED STRING";
+    const ARG_HELP: &str =
+        "The formatted string prefixed by hash- representing a 1.x contract package";
+
+    pub fn arg() -> Arg {
+        Arg::new(ARG_NAME)
+            .long(ARG_NAME)
+            .value_name(ARG_VALUE_NAME)
+            .help(ARG_HELP)
+            .display_order(DisplayOrder::PackageAddr as usize)
+    }
+
+    pub fn get(matches: &ArgMatches) -> Option<&str> {
+        matches.get_one::<String>(ARG_NAME).map(String::as_str)
+    }
+
+    pub(super) fn parse_package_addr(value: &str) -> Result<PackageAddr, CliError> {
+        let package_addr =
+            Key::from_formatted_str(value).map_err(|error| CliError::FailedToParseKey {
+                context: "contract-package-hash",
+                error,
+            })?;
+        match package_addr {
+            Key::Hash(package_addr) => Ok(package_addr),
+            _ => Err(CliError::Core(Error::InvalidKeyVariant {
+                expected_variant: "ContractPackageHash".to_string(),
+                actual: package_addr,
+            })),
         }
     }
 }
@@ -1985,8 +2061,13 @@ pub(super) mod invocable_entity {
         show_simple_arg_examples_and_exit_if_required(matches);
         show_json_args_examples_and_exit_if_required(matches);
 
-        let entity_addr_str = entity_addr::get(matches)?;
-        let entity_addr = entity_addr::parse_entity_addr(entity_addr_str)?;
+        let entity_addr = match contract_hash::get(matches) {
+            None => {
+                let entity_addr_str = entity_addr::get(matches)?;
+                entity_addr::parse_entity_addr(entity_addr_str)?
+            }
+            Some(contract_hash_as_str) => contract_hash::parse_contract_hash(contract_hash_as_str)?,
+        };
 
         let entry_point = session_entry_point::get(matches).unwrap_or_default();
         let runtime = get_transaction_runtime(matches)?;
@@ -2001,7 +2082,8 @@ pub(super) mod invocable_entity {
 
     fn add_args(invocable_entity_subcommand: Command) -> Command {
         invocable_entity_subcommand
-            .arg(entity_addr::arg())
+            .arg(entity_addr::arg().required_unless_present(contract_hash::ARG_NAME))
+            .arg(contract_hash::arg())
             .arg(session_entry_point::arg())
             .arg(transaction_runtime::arg())
             .arg(transferred_value::arg())
@@ -2086,8 +2168,15 @@ pub(super) mod package {
         show_simple_arg_examples_and_exit_if_required(matches);
         show_json_args_examples_and_exit_if_required(matches);
 
-        let maybe_package_addr_str = package_addr::get(matches);
-        let package_addr = package_addr::parse_package_addr(maybe_package_addr_str)?;
+        let package_addr = match contract_package_hash::get(matches) {
+            None => {
+                let maybe_package_addr_str = package_addr::get(matches);
+                package_addr::parse_package_addr(maybe_package_addr_str)?
+            }
+            Some(contract_package_as_str) => {
+                contract_package_hash::parse_package_addr(contract_package_as_str)?
+            }
+        };
         let maybe_entity_version = session_version::get(matches);
         let runtime = get_transaction_runtime(matches)?;
 
@@ -2104,7 +2193,8 @@ pub(super) mod package {
 
     fn add_args(package_subcommand: Command) -> Command {
         package_subcommand
-            .arg(package_addr::arg())
+            .arg(package_addr::arg().required_unless_present(contract_package_hash::ARG_NAME))
+            .arg(contract_package_hash::arg())
             .arg(session_version::arg())
             .arg(session_entry_point::arg())
     }
