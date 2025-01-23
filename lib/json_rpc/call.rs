@@ -1,3 +1,4 @@
+#[cfg(not(target_arch = "wasm32"))]
 use std::time::Duration;
 
 use crate::{Error, JsonRpcId, SuccessResponse, Verbosity};
@@ -8,6 +9,7 @@ use serde::{de::DeserializeOwned, Serialize};
 use serde_json::json;
 
 const RPC_API_PATH: &str = "rpc";
+#[cfg(not(target_arch = "wasm32"))]
 const REQUEST_TIMEOUT: Duration = Duration::from_secs(5);
 
 /// Statically declared client used when making HTTP requests
@@ -67,10 +69,12 @@ impl Call {
         crate::json_pretty_print(&rpc_request, self.verbosity)?;
 
         let client = CLIENT.get_or_init(|| {
-            Client::builder()
-                .timeout(REQUEST_TIMEOUT)
-                .build()
-                .expect("failed to initialize HTTP client")
+            let builder = Client::builder();
+
+            #[cfg(not(target_arch = "wasm32"))]
+            let builder = builder.timeout(REQUEST_TIMEOUT);
+
+            builder.build().expect("failed to initialize HTTP client")
         });
         let http_response = client
             .post(self.node_address)
