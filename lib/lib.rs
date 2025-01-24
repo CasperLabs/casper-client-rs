@@ -134,6 +134,7 @@ pub const MAX_SERIALIZED_SIZE_OF_DEPLOY: u32 = 1_024 * 1_024;
 /// Sends a JSON-RPC `account_put_deploy` request to the specified node.
 ///
 /// For details of the parameters, see [the module docs](crate#common-parameters).
+#[deprecated(since = "3.0.0", note = "use `put_transaction` instead")]
 pub async fn put_deploy(
     rpc_id: JsonRpcId,
     node_address: &str,
@@ -169,6 +170,7 @@ pub async fn put_transaction(
 /// Sends a JSON-RPC `speculative_exec` request to the specified node.
 ///
 /// For details of the parameters, see [the module docs](crate#common-parameters).
+#[deprecated(since = "3.0.0", note = "use `speculative_exec_txn` instead")]
 pub async fn speculative_exec(
     rpc_id: JsonRpcId,
     node_address: &str,
@@ -210,6 +212,7 @@ pub async fn speculative_exec_txn(
 ///
 /// `output` specifies the output file and corresponding overwrite behaviour, or if
 /// `OutputKind::Stdout`, causes the `Deploy` to be printed `stdout`.
+#[deprecated(since = "3.0.0", note = "use `output_transaction` instead")]
 #[cfg(any(feature = "std-fs-io", test))]
 pub fn output_deploy(output: OutputKind, deploy: &Deploy) -> Result<(), Error> {
     write_deploy(deploy, output.get()?)?;
@@ -231,6 +234,7 @@ pub fn output_transaction(output: OutputKind, transaction: &Transaction) -> Resu
 }
 
 /// Reads a previously-saved [`Deploy`] from a file.
+#[deprecated(since = "3.0.0", note = "use `read_transaction_file` instead")]
 #[cfg(any(feature = "std-fs-io", test))]
 pub fn read_deploy_file<P: AsRef<Path>>(deploy_path: P) -> Result<Deploy, Error> {
     let input = fs::read(deploy_path.as_ref()).map_err(|error| Error::IoError {
@@ -264,12 +268,14 @@ pub fn read_transaction_file<P: AsRef<Path>>(transaction_path: P) -> Result<Tran
 ///
 /// The same path can be specified for input and output, and if the operation fails, the original
 /// input file will be left unmodified.
+#[deprecated(since = "3.0.0", note = "use `sign_transaction_file` instead")]
 #[cfg(any(feature = "std-fs-io", test))]
 pub fn sign_deploy_file<P: AsRef<Path>>(
     input_path: P,
     secret_key: &SecretKey,
     output: OutputKind,
 ) -> Result<(), Error> {
+    #[allow(deprecated)]
     let mut deploy = read_deploy_file(input_path)?;
 
     deploy.sign(secret_key);

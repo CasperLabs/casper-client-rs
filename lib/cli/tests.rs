@@ -208,10 +208,13 @@ fn should_sign_deploy() {
     let tempdir = tempfile::tempdir().unwrap();
     let path = tempdir.path().join("deploy.json");
 
+    #[allow(deprecated)]
     crate::output_deploy(OutputKind::file(&path, false), &deploy).unwrap();
 
     let secret_key = SecretKey::generate_ed25519().unwrap();
+    #[allow(deprecated)]
     crate::sign_deploy_file(&path, &secret_key, OutputKind::file(&path, true)).unwrap();
+    #[allow(deprecated)]
     let signed_deploy = crate::read_deploy_file(&path).unwrap();
 
     assert_eq!(

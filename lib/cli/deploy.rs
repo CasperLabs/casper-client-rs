@@ -32,6 +32,7 @@ pub async fn put_deploy(
     let rpc_id = parse::rpc_id(maybe_rpc_id);
     let verbosity = parse::verbosity(verbosity_level);
     let deploy = with_payment_and_session(deploy_params, payment_params, session_params, false)?;
+    #[allow(deprecated)]
     crate::put_deploy(rpc_id, node_address, verbosity, deploy)
         .await
         .map_err(CliError::from)
@@ -52,6 +53,7 @@ pub async fn speculative_put_deploy(
     let rpc_id = parse::rpc_id(maybe_rpc_id);
     let verbosity = parse::verbosity(verbosity_level);
     let deploy = with_payment_and_session(deploy_params, payment_params, session_params, false)?;
+    #[allow(deprecated)]
     crate::speculative_exec(rpc_id, node_address, verbosity, deploy)
         .await
         .map_err(CliError::from)
@@ -78,6 +80,7 @@ pub fn make_deploy(
     #[cfg(feature = "std-fs-io")]
     {
         let output = parse::output_kind(maybe_output_path, force);
+        #[allow(deprecated)]
         crate::output_deploy(output, &deploy).map_err(CliError::from)?;
     }
     Ok(deploy)
@@ -99,6 +102,7 @@ pub fn sign_deploy_file(
 ) -> Result<(), CliError> {
     let secret_key = parse::secret_key_from_file(secret_key_path)?;
     let output = parse::output_kind(maybe_output_path, force);
+    #[allow(deprecated)]
     crate::sign_deploy_file(input_path, &secret_key, output).map_err(CliError::from)
 }
 
@@ -114,7 +118,9 @@ pub async fn send_deploy_file(
 ) -> Result<SuccessResponse<PutDeployResult>, CliError> {
     let rpc_id = parse::rpc_id(maybe_rpc_id);
     let verbosity = parse::verbosity(verbosity_level);
+    #[allow(deprecated)]
     let deploy = crate::read_deploy_file(input_path)?;
+    #[allow(deprecated)]
     crate::put_deploy(rpc_id, node_address, verbosity, deploy)
         .await
         .map_err(CliError::from)
@@ -132,7 +138,9 @@ pub async fn speculative_send_deploy_file(
 ) -> Result<SuccessResponse<SpeculativeExecResult>, CliError> {
     let rpc_id = parse::rpc_id(maybe_rpc_id);
     let verbosity = parse::verbosity(verbosity_level);
+    #[allow(deprecated)]
     let deploy = crate::read_deploy_file(input_path)?;
+    #[allow(deprecated)]
     crate::speculative_exec(rpc_id, node_address, verbosity, deploy)
         .await
         .map_err(CliError::from)
@@ -170,6 +178,7 @@ pub async fn transfer(
         payment_params,
         false,
     )?;
+    #[allow(deprecated)]
     crate::put_deploy(rpc_id, node_address, verbosity, deploy)
         .await
         .map_err(CliError::from)
@@ -208,6 +217,7 @@ pub async fn speculative_transfer(
         payment_params,
         false,
     )?;
+    #[allow(deprecated)]
     crate::speculative_exec(rpc_id, node_address, verbosity, deploy)
         .await
         .map_err(CliError::from)
@@ -245,6 +255,7 @@ pub fn make_transfer(
     #[cfg(feature = "std-fs-io")]
     {
         let output = parse::output_kind(maybe_output_path, force);
+        #[allow(deprecated)]
         crate::output_deploy(output, &deploy).map_err(CliError::from)?;
     }
     Ok(deploy)
