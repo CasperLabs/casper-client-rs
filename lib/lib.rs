@@ -141,7 +141,7 @@ pub async fn put_deploy(
     verbosity: Verbosity,
     deploy: Deploy,
 ) -> Result<SuccessResponse<PutDeployResult>, Error> {
-    JsonRpcCall::new(rpc_id, node_address, verbosity)
+    JsonRpcCall::new(rpc_id, node_address, verbosity)?
         .send_request(PUT_DEPLOY_METHOD, Some(PutDeployParams::new(deploy)))
         .await
 }
@@ -157,7 +157,7 @@ pub async fn put_transaction(
     verbosity: Verbosity,
     transaction: Transaction,
 ) -> Result<SuccessResponse<PutTransactionResult>, Error> {
-    JsonRpcCall::new(rpc_id, node_address, verbosity)
+    JsonRpcCall::new(rpc_id, node_address, verbosity)?
         .send_request(
             PUT_TRANSACTION_METHOD,
             Some(PutTransactionParams::new(transaction)),
@@ -177,7 +177,7 @@ pub async fn speculative_exec(
     verbosity: Verbosity,
     deploy: Deploy,
 ) -> Result<SuccessResponse<SpeculativeExecResult>, Error> {
-    JsonRpcCall::new(rpc_id, node_address, verbosity)
+    JsonRpcCall::new(rpc_id, node_address, verbosity)?
         .send_request(
             SPECULATIVE_EXEC_METHOD,
             Some(SpeculativeExecParams::new(deploy)),
@@ -196,7 +196,7 @@ pub async fn speculative_exec_txn(
     verbosity: Verbosity,
     transaction: Transaction,
 ) -> Result<SuccessResponse<SpeculativeExecTxnResult>, Error> {
-    JsonRpcCall::new(rpc_id, node_address, verbosity)
+    JsonRpcCall::new(rpc_id, node_address, verbosity)?
         .send_request(
             SPECULATIVE_EXEC_TXN_METHOD,
             Some(SpeculativeExecTxnParams::new(transaction)),
@@ -318,7 +318,7 @@ pub async fn get_deploy(
     deploy_hash: DeployHash,
     finalized_approvals: bool,
 ) -> Result<SuccessResponse<GetDeployResult>, Error> {
-    JsonRpcCall::new(rpc_id, node_address, verbosity)
+    JsonRpcCall::new(rpc_id, node_address, verbosity)?
         .send_request(
             GET_DEPLOY_METHOD,
             Some(GetDeployParams::new(deploy_hash, finalized_approvals)),
@@ -341,7 +341,7 @@ pub async fn get_transaction(
     transaction_hash: TransactionHash,
     finalized_approvals: bool,
 ) -> Result<SuccessResponse<GetTransactionResult>, Error> {
-    JsonRpcCall::new(rpc_id, node_address, verbosity)
+    JsonRpcCall::new(rpc_id, node_address, verbosity)?
         .send_request(
             GET_TRANSACTION_METHOD,
             Some(GetTransactionParams::new(
@@ -364,7 +364,7 @@ pub async fn get_block(
     maybe_block_identifier: Option<BlockIdentifier>,
 ) -> Result<SuccessResponse<GetBlockResult>, Error> {
     let params = maybe_block_identifier.map(GetBlockParams::new);
-    let success_response = JsonRpcCall::new(rpc_id, node_address, verbosity)
+    let success_response = JsonRpcCall::new(rpc_id, node_address, verbosity)?
         .send_request(GET_BLOCK_METHOD, params)
         .await?;
     validation::validate_get_block_result(maybe_block_identifier, &success_response.result)?;
@@ -383,7 +383,7 @@ pub async fn get_block_transfers(
     maybe_block_identifier: Option<BlockIdentifier>,
 ) -> Result<SuccessResponse<GetBlockTransfersResult>, Error> {
     let params = maybe_block_identifier.map(GetBlockTransfersParams::new);
-    JsonRpcCall::new(rpc_id, node_address, verbosity)
+    JsonRpcCall::new(rpc_id, node_address, verbosity)?
         .send_request(GET_BLOCK_TRANSFERS_METHOD, params)
         .await
 }
@@ -400,7 +400,7 @@ pub async fn get_state_root_hash(
     maybe_block_identifier: Option<BlockIdentifier>,
 ) -> Result<SuccessResponse<GetStateRootHashResult>, Error> {
     let params = maybe_block_identifier.map(GetStateRootHashParams::new);
-    JsonRpcCall::new(rpc_id, node_address, verbosity)
+    JsonRpcCall::new(rpc_id, node_address, verbosity)?
         .send_request(GET_STATE_ROOT_HASH_METHOD, params)
         .await
 }
@@ -417,7 +417,7 @@ pub async fn get_era_summary(
     maybe_block_identifier: Option<BlockIdentifier>,
 ) -> Result<SuccessResponse<GetEraSummaryResult>, Error> {
     let params = maybe_block_identifier.map(GetEraSummaryParams::new);
-    JsonRpcCall::new(rpc_id, node_address, verbosity)
+    JsonRpcCall::new(rpc_id, node_address, verbosity)?
         .send_request(GET_ERA_SUMMARY_METHOD, params)
         .await
 }
@@ -445,7 +445,7 @@ pub async fn query_global_state(
     path: Vec<String>,
 ) -> Result<SuccessResponse<QueryGlobalStateResult>, Error> {
     let params = QueryGlobalStateParams::new(global_state_identifier, key, path);
-    JsonRpcCall::new(rpc_id, node_address, verbosity)
+    JsonRpcCall::new(rpc_id, node_address, verbosity)?
         .send_request(QUERY_GLOBAL_STATE_METHOD, Some(params))
         .await
 }
@@ -463,7 +463,7 @@ pub async fn query_balance(
     purse_identifier: PurseIdentifier,
 ) -> Result<SuccessResponse<QueryBalanceResult>, Error> {
     let params = QueryBalanceParams::new(maybe_global_state_identifier, purse_identifier);
-    JsonRpcCall::new(rpc_id, node_address, verbosity)
+    JsonRpcCall::new(rpc_id, node_address, verbosity)?
         .send_request(QUERY_BALANCE_METHOD, Some(params))
         .await
 }
@@ -481,7 +481,7 @@ pub async fn query_balance_details(
     purse_identifier: PurseIdentifier,
 ) -> Result<SuccessResponse<QueryBalanceDetailsResult>, Error> {
     let params = QueryBalanceDetailsParams::new(maybe_global_state_identifier, purse_identifier);
-    JsonRpcCall::new(rpc_id, node_address, verbosity)
+    JsonRpcCall::new(rpc_id, node_address, verbosity)?
         .send_request(QUERY_BALANCE_DETAILS_METHOD, Some(params))
         .await
 }
@@ -499,7 +499,7 @@ pub async fn get_dictionary_item(
     dictionary_item_identifier: DictionaryItemIdentifier,
 ) -> Result<SuccessResponse<GetDictionaryItemResult>, Error> {
     let params = GetDictionaryItemParams::new(state_root_hash, dictionary_item_identifier);
-    JsonRpcCall::new(rpc_id, node_address, verbosity)
+    JsonRpcCall::new(rpc_id, node_address, verbosity)?
         .send_request(GET_DICTIONARY_ITEM_METHOD, Some(params))
         .await
 }
@@ -517,7 +517,7 @@ pub async fn get_balance(
     purse: URef,
 ) -> Result<SuccessResponse<GetBalanceResult>, Error> {
     let params = GetBalanceParams::new(state_root_hash, purse);
-    JsonRpcCall::new(rpc_id, node_address, verbosity)
+    JsonRpcCall::new(rpc_id, node_address, verbosity)?
         .send_request(GET_BALANCE_METHOD, Some(params))
         .await
 }
@@ -535,7 +535,7 @@ pub async fn get_account(
     account_identifier: AccountIdentifier,
 ) -> Result<SuccessResponse<GetAccountResult>, Error> {
     let params = GetAccountParams::new(account_identifier, maybe_block_identifier);
-    JsonRpcCall::new(rpc_id, node_address, verbosity)
+    JsonRpcCall::new(rpc_id, node_address, verbosity)?
         .send_request(GET_ACCOUNT_METHOD, Some(params))
         .await
 }
@@ -553,7 +553,7 @@ pub async fn get_entity(
     entity_identifier: EntityIdentifier,
 ) -> Result<SuccessResponse<GetAddressableEntityResult>, Error> {
     let params = GetAddressableEntityParams::new(entity_identifier, maybe_block_identifier);
-    JsonRpcCall::new(rpc_id, node_address, verbosity)
+    JsonRpcCall::new(rpc_id, node_address, verbosity)?
         .send_request(GET_ENTITY_METHOD, Some(params))
         .await
 }
@@ -572,7 +572,7 @@ pub async fn get_reward(
     delegator: Option<PublicKey>,
 ) -> Result<SuccessResponse<GetRewardResult>, Error> {
     let params = GetRewardParams::new(maybe_era_identifier, validator, delegator);
-    JsonRpcCall::new(rpc_id, node_address, verbosity)
+    JsonRpcCall::new(rpc_id, node_address, verbosity)?
         .send_request(GET_REWARD_METHOD, Some(params))
         .await
 }
@@ -589,7 +589,7 @@ pub async fn get_auction_info(
     maybe_block_identifier: Option<BlockIdentifier>,
 ) -> Result<SuccessResponse<GetAuctionInfoResult>, Error> {
     let params = maybe_block_identifier.map(GetAuctionInfoParams::new);
-    JsonRpcCall::new(rpc_id, node_address, verbosity)
+    JsonRpcCall::new(rpc_id, node_address, verbosity)?
         .send_request(GET_AUCTION_INFO_METHOD, params)
         .await
 }
@@ -604,7 +604,7 @@ pub async fn get_validator_changes(
     node_address: &str,
     verbosity: Verbosity,
 ) -> Result<SuccessResponse<GetValidatorChangesResult>, Error> {
-    JsonRpcCall::new(rpc_id, node_address, verbosity)
+    JsonRpcCall::new(rpc_id, node_address, verbosity)?
         .send_request::<(), _>(GET_VALIDATOR_CHANGES_METHOD, None)
         .await
 }
@@ -619,7 +619,7 @@ pub async fn get_peers(
     node_address: &str,
     verbosity: Verbosity,
 ) -> Result<SuccessResponse<GetPeersResult>, Error> {
-    JsonRpcCall::new(rpc_id, node_address, verbosity)
+    JsonRpcCall::new(rpc_id, node_address, verbosity)?
         .send_request::<(), _>(GET_PEERS_METHOD, None)
         .await
 }
@@ -634,7 +634,7 @@ pub async fn get_node_status(
     node_address: &str,
     verbosity: Verbosity,
 ) -> Result<SuccessResponse<GetNodeStatusResult>, Error> {
-    JsonRpcCall::new(rpc_id, node_address, verbosity)
+    JsonRpcCall::new(rpc_id, node_address, verbosity)?
         .send_request::<(), _>(GET_NODE_STATUS_METHOD, None)
         .await
 }
@@ -649,7 +649,7 @@ pub async fn get_chainspec(
     node_address: &str,
     verbosity: Verbosity,
 ) -> Result<SuccessResponse<GetChainspecResult>, Error> {
-    JsonRpcCall::new(rpc_id, node_address, verbosity)
+    JsonRpcCall::new(rpc_id, node_address, verbosity)?
         .send_request::<(), _>(GET_CHAINSPEC_METHOD, None)
         .await
 }
@@ -665,7 +665,7 @@ pub async fn list_rpcs(
     node_address: &str,
     verbosity: Verbosity,
 ) -> Result<SuccessResponse<ListRpcsResult>, Error> {
-    JsonRpcCall::new(rpc_id, node_address, verbosity)
+    JsonRpcCall::new(rpc_id, node_address, verbosity)?
         .send_request::<(), _>(LIST_RPCS_METHOD, None)
         .await
 }
@@ -761,7 +761,7 @@ pub async fn get_era_info(
     maybe_block_identifier: Option<BlockIdentifier>,
 ) -> Result<SuccessResponse<GetEraInfoResult>, Error> {
     let params = maybe_block_identifier.map(GetEraInfoParams::new);
-    JsonRpcCall::new(rpc_id, node_address, verbosity)
+    JsonRpcCall::new(rpc_id, node_address, verbosity)?
         .send_request(GET_ERA_INFO_METHOD, params)
         .await
 }

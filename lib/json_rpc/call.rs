@@ -1,11 +1,17 @@
+#[cfg(not(target_arch = "wasm32"))]
+use std::time::Duration;
+
 use crate::{Error, JsonRpcId, SuccessResponse, Verbosity};
 use jsonrpc_lite::{JsonRpc, Params};
 use once_cell::sync::OnceCell;
-use reqwest::Client;
+use reqwest::{Client, Url};
 use serde::{de::DeserializeOwned, Serialize};
 use serde_json::json;
 
 const RPC_API_PATH: &str = "rpc";
+#[cfg(not(target_arch = "wasm32"))]
+const REQUEST_TIMEOUT: Duration = Duration::from_secs(5);
+
 /// Statically declared client used when making HTTP requests
 /// so opened connections are pooled.
 static CLIENT: OnceCell<Client> = OnceCell::new();
@@ -14,19 +20,31 @@ static CLIENT: OnceCell<Client> = OnceCell::new();
 #[derive(Debug)]
 pub(crate) struct Call {
     rpc_id: JsonRpcId,
-    node_address: String,
+    node_address: Url,
     #[allow(dead_code)]
     verbosity: Verbosity,
 }
 
 /// `Call` encapsulates JSON-RPC calls made to the casper node service.
 impl Call {
-    pub(crate) fn new(rpc_id: JsonRpcId, node_address: &str, verbosity: Verbosity) -> Self {
-        Self {
+    pub(crate) fn new(
+        rpc_id: JsonRpcId,
+        node_address: &str,
+        verbosity: Verbosity,
+    ) -> Result<Self, Error> {
+        let url = if node_address.ends_with(RPC_API_PATH) {
+            node_address.to_string()
+        } else {
+            format!("{}/{}", node_address, RPC_API_PATH)
+        };
+
+        let node_address = Url::parse(&url).map_err(|_| Error::FailedToParseNodeAddress)?;
+        Ok(Self {
             rpc_id,
-            node_address: node_address.trim_end_matches('/').to_string(),
+            // node_address: node_address.trim_end_matches('/').to_string(),
+            node_address,
             verbosity,
-        }
+        })
     }
 
     pub(crate) async fn send_request<P: Serialize, R: DeserializeOwned>(
@@ -34,12 +52,6 @@ impl Call {
         method: &'static str,
         maybe_params: Option<P>,
     ) -> Result<SuccessResponse<R>, Error> {
-        let url = if self.node_address.ends_with(RPC_API_PATH) {
-            self.node_address
-        } else {
-            format!("{}/{}", self.node_address, RPC_API_PATH)
-        };
-
         let rpc_request = match maybe_params {
             Some(params) => {
                 let params = Params::Map(
@@ -56,9 +68,16 @@ impl Call {
         #[cfg(feature = "std-fs-io")]
         crate::json_pretty_print(&rpc_request, self.verbosity)?;
 
-        let client = CLIENT.get_or_init(Client::new);
+        let client = CLIENT.get_or_init(|| {
+            let builder = Client::builder();
+
+            #[cfg(not(target_arch = "wasm32"))]
+            let builder = builder.timeout(REQUEST_TIMEOUT);
+
+            builder.build().expect("failed to initialize HTTP client")
+        });
         let http_response = client
-            .post(&url)
+            .post(self.node_address)
             .json(&rpc_request)
             .send()
             .await

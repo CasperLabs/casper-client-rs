@@ -170,6 +170,10 @@ pub enum Error {
     /// Failed to construct HTTP client.
     #[error("failed to construct HTTP client")]
     FailedToConstructHttpClient,
+
+    /// Failed to parse provided node address as URL.
+    #[error("failed to parse node address as valid URL")]
+    FailedToParseNodeAddress,
 }
 
 impl From<ToBytesError> for Error {
