@@ -817,13 +817,13 @@ pub(super) mod output {
     }
 }
 
-pub(super) mod transaction_path {
+pub(super) mod wasm_path {
     use super::*;
 
-    const ARG_NAME: &str = "transaction-path";
-    const ARG_SHORT: char = 't';
+    const ARG_NAME: &str = "wasm-path";
+    const ARG_SHORT: char = 'w';
     const ARG_VALUE_NAME: &str = common::ARG_PATH;
-    const ARG_HELP: &str = "Path to input transaction file";
+    const ARG_HELP: &str = "Path to compiled Wasm session code";
 
     pub fn arg() -> Arg {
         Arg::new(ARG_NAME)
@@ -2284,17 +2284,16 @@ pub(super) mod session {
         show_simple_arg_examples_and_exit_if_required(matches);
         show_json_args_examples_and_exit_if_required(matches);
 
-        let transaction_path_str = transaction_path::get(matches);
+        let wasm_path_str = wasm_path::get(matches);
 
-        if transaction_path_str.is_none() {
+        if wasm_path_str.is_none() {
             return Err(CliError::InvalidArgument {
-                context: "transaction_path",
-                error: "Transaction path cannot be empty".to_string(),
+                context: "wasm_path",
+                error: "Wasm path cannot be empty".to_string(),
             });
         }
 
-        let transaction_bytes =
-            parse::transaction_module_bytes(transaction_path_str.unwrap_or_default())?;
+        let transaction_bytes = parse::transaction_module_bytes(wasm_path_str.unwrap_or_default())?;
 
         let is_install_upgrade: bool = is_install_upgrade::get(matches);
         let runtime = get_transaction_runtime(matches)?;
@@ -2310,7 +2309,7 @@ pub(super) mod session {
 
     fn add_args(session_subcommand: Command) -> Command {
         session_subcommand
-            .arg(transaction_path::arg())
+            .arg(wasm_path::arg())
             .arg(session_entry_point::arg())
             .arg(is_install_upgrade::arg(
                 DisplayOrder::IsInstallUpgrade as usize,
