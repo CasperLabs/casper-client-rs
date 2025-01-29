@@ -572,11 +572,9 @@ pub(super) fn apply_common_creation_options(
         );
 
     if include_node_address {
-        subcommand = subcommand.arg(
-            common::node_address::arg(DisplayOrder::NodeAddress as usize)
-                .required_unless_present(show_simple_arg_examples::ARG_NAME)
-                .required_unless_present(show_json_args_examples::ARG_NAME),
-        );
+        subcommand = subcommand.arg(common::node_address::arg(
+            DisplayOrder::NodeAddress as usize,
+        ));
     }
 
     let secret_key_arg = if require_secret_key {

@@ -10,7 +10,7 @@ use serde_json::json;
 
 const RPC_API_PATH: &str = "rpc";
 #[cfg(not(target_arch = "wasm32"))]
-const REQUEST_TIMEOUT: Duration = Duration::from_secs(5);
+const REQUEST_TIMEOUT: Duration = Duration::from_secs(15);
 
 /// Statically declared client used when making HTTP requests
 /// so opened connections are pooled.
