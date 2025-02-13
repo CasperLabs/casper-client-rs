@@ -28,7 +28,7 @@ impl ClientCommand for SendTransaction {
             ))
             .arg(common::rpc_id::arg(DisplayOrder::RpcId as usize))
             .arg(creation_common::speculative_exec::arg())
-            .arg(creation_common::transaction_path::arg())
+            .arg(creation_common::wasm_path::arg())
     }
 
     async fn run(matches: &ArgMatches) -> Result<Success, CliError> {
@@ -36,7 +36,7 @@ impl ClientCommand for SendTransaction {
         let maybe_rpc_id = common::rpc_id::get(matches);
         let node_address = common::node_address::get(matches);
         let verbosity_level = common::verbose::get(matches);
-        let input_path = creation_common::transaction_path::get(matches).unwrap_or_default();
+        let input_path = creation_common::wasm_path::get(matches).unwrap_or_default();
         if input_path.is_empty() {
             return Err(CliError::InvalidArgument {
                 context: "send_deploy",
